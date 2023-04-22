@@ -1,0 +1,13 @@
+# selenium==3.141.0
+# selenium-wire==3.0.6
+django
+selenium-wire
+django-admin-rangefilter
+django-import-export
+django-crontab
+django-countries
+django-admin-list-filter-dropdown
+django-crontab
+requests
+babel
+django-preferences

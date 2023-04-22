@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %} {% load i18n %} 
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a class="historylink" href="/crawler/bigspy">Cào dữ liệu Bigspy</a>
+    </li>
+    <li>
+        <a class="historylink" href="/crawler/shoplus">Cào dữ liệu Shoplus</a>
+    </li>
+{% endblock %}
