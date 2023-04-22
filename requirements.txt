@@ -11,3 +11,4 @@ django-crontab
 requests
 babel
 django-preferences
+import_export

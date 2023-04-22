@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'socialcrawler.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db3.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
@@ -133,6 +133,55 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+import os
+
+# , '>> ' + os.path.join(BASE_DIR,'log.log' + ' 2>&1 ')
 CRONJOBS = [
-    ('*/2 * * * *', 'crawler.crontab.my_cron_job')
+    ('*/2 * * * *', 'crawler.crontab.cron_crawl_bigspy'),
+    ('*/2 * * * *', 'crawler.crontab.cron_crawl_shoplus')
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'file': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'log.log',
+            'maxBytes': 10 * 1024 * 1024,
+            'formatter': 'file',
+        },
+        'file_error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'log.log',
+            'maxBytes': 10 * 1024 * 1024,
+            'formatter': 'file',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        # 'django': {
+        #     'handlers': ['file', 'console'],
+        #     'level': 'INFO',
+        #     'propagate': True,
+        # },
+        '': {
+            'handlers': ['file', 'console', 'file_error'],
+            'level': 1,
+            'propagate': True,
+        },
+    },
+}

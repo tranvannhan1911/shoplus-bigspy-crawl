@@ -1,6 +1,6 @@
 from django.db import models
 from django_countries.fields import CountryField
-from .utils import to_number, country_to_str
+from .utils import to_number, country_to_str, clean_str
 from datetime import datetime
 import json
 from preferences.models import Preferences
@@ -15,20 +15,20 @@ class VideoPost(models.Model):
     CRAWLER_SHOPLUS = "shoplus"
 
     ads_id = models.CharField('Ads id', max_length=255)
-    title = models.CharField(max_length=255)
-    fanpage_name = models.CharField('Tên fanpage', max_length=255)
-    fanpage_url = models.CharField('Link fanpage', max_length=255)
+    title = models.CharField("Tiêu đề", max_length=255, default="", blank=True)
+    fanpage_name = models.CharField('Tên fanpage', max_length=255, default="", blank=True)
+    fanpage_url = models.CharField('Link fanpage', max_length=255, default="", blank=True)
     country = CountryField('Quốc gia')
-    content = models.TextField('Nội dung')
-    thumbnail_url = models.CharField('Thumbnail', max_length=255)
-    avatar = models.CharField('Avatar', max_length=255)
-    video_url = models.CharField('Video URL', max_length=255)
+    content = models.TextField('Nội dung', default="", blank=True)
+    thumbnail_url = models.CharField('Thumbnail', max_length=255, default="", blank=True)
+    avatar = models.CharField('Avatar', max_length=255, default="", blank=True)
+    video_url = models.CharField('Video URL', max_length=255, default="", blank=True)
     platform = models.CharField('Nền tảng', max_length=255, choices=(
         (PLATFORM_FACEBOOK, PLATFORM_FACEBOOK), (PLATFORM_TIKTOK, PLATFORM_TIKTOK)
     ))
-    landing_page_url = models.CharField('Landing Page URL', max_length=255)
-    resolution = models.CharField('Độ phân giải', max_length=255)
-    original_post_url = models.CharField('Bài viết gốc', max_length=255)
+    landing_page_url = models.CharField('Landing Page URL', max_length=255, default="", blank=True)
+    resolution = models.CharField('Độ phân giải', max_length=255, default="", blank=True)
+    original_post_url = models.CharField('Bài viết gốc', max_length=255, default="", blank=True)
     impression_count = models.IntegerField('Impression', default=0)
     like_count = models.IntegerField('Lượt like', default=0)
     comment_count = models.IntegerField('Lượt bình luận', default=0)
@@ -50,15 +50,15 @@ class VideoPost(models.Model):
         
         save_data = {
             "ads_id": data["ad_key"],
-            "title": data["title"],
-            "fanpage_name": data["page_name"],
+            "title": clean_str(data["title"]),
+            "fanpage_name": clean_str(data["page_name"]),
             "country": "VN",
             "thumbnail_url": data["preview_img_url"],
             "fanpage_url": data["store_url"],
             "avatar": data["logo_url"],
             "video_url": json.loads(data["cdn_url"])[0],
             "platform": VideoPost.PLATFORM_FACEBOOK,
-            "content": data["message"],
+            "content": clean_str(data["message"]),
             "posted_at": datetime.fromtimestamp(data["created_at"]),
             "landing_page_url": data["store_url"],
             "resolution": str(data["ad_width"]) + "*" + str(data["ad_height"]),
@@ -80,15 +80,15 @@ class VideoPost(models.Model):
         
         save_data = {
             "ads_id": data["id"],
-            "title": data["desc"],
-            "fanpage_name": data["nickname"],
+            "title": clean_str(data["desc"]),
+            "fanpage_name": clean_str(data["nickname"]),
             "country": "VN",
             "thumbnail_url": "https://t-img.picturehaven.net/tikmeta/"+ data["origin_cover_privatization"] +"?imageMogr2/auto-orient/thumbnail/360x/strip/format/WEBP/quality/75!/ignore-error/1",
             "fanpage_url": "",
             "avatar": "https://t-img.picturehaven.net/tikmeta/"+data["avatar_privatization"]+"?imageMogr2/auto-orient/thumbnail/360x/strip/format/WEBP/quality/75!/ignore-error/1",
             "video_url": "https://video.picturehaven.net/video/" + data["play_url_privatization"],
             "platform": VideoPost.PLATFORM_TIKTOK,
-            "content": data["desc"],
+            "content": clean_str(data["desc"]),
             "posted_at": datetime.fromtimestamp(data["create_time"]),
             "landing_page_url": data["root_path"] if "root_path" in data.keys() else "",
             "resolution": str(data["width"]) + "*" + str(data["height"]),
@@ -109,7 +109,7 @@ class AccountCrawlerConfig(Preferences):
     shoplus_password = models.CharField("Mật khẩu Shoplus", max_length=255, default="", blank=True)
 
 class SeleniumCrawlerConfig(Preferences):
-    headless = models.BooleanField("Chế độ cào không có giao diện", default=True)
+    # headless = models.BooleanField("Chế độ cào không có giao diện", default=True)
     bigspy_running = models.BooleanField("Bigspy đang chạy", default=False)
     bigspy_crawled = models.PositiveIntegerField("Số lượng bài bigspy cào được", default=0)
     shoplus_running = models.BooleanField("Shoplus đang chạy", default=False)

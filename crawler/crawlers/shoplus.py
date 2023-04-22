@@ -15,6 +15,8 @@ import threading
 from crawler.models import VideoPost, AccountCrawlerConfig, SeleniumCrawlerConfig
 from datetime import datetime
 import traceback
+import logging
+logger = logging.getLogger("django")
 
 
 class ShoplusCrawler(threading.Thread):
@@ -35,12 +37,11 @@ class ShoplusCrawler(threading.Thread):
             selenium_crawler_config.shoplus_running = True
             selenium_crawler_config.save()
             try:
-                print("Start crawl shoplus...")
+                logger.info("Start crawl shoplus...")
                 chrome_options = Options()
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
-                if selenium_crawler_config.headless:
-                    chrome_options.add_argument("--headless")
+                chrome_options.add_argument("--headless")
                 capabilities = webdriver.DesiredCapabilities.CHROME
                 capabilities["goog:loggingPrefs"] = {"performance": "ALL"}
                 # , desired_capabilities=capabilities, options=options
@@ -85,8 +86,8 @@ class ShoplusCrawler(threading.Thread):
                         token = event["params"]["headers"]["authorization"]
                         cookie = event["params"]["headers"]["cookie"]
 
-                print("token: ", token)
-                print("cookie: ", cookie)
+                logger.info("token: "+ token)
+                logger.info("cookie: "+ cookie)
                 driver.quit()
                 max_page = 49
                 for page in range(0, max_page+1):
@@ -102,9 +103,9 @@ class ShoplusCrawler(threading.Thread):
                         detail = api.get_shoplus_ads_detail(post["id"], post["author_id"], post["video_id"], last_time_date, token, cookie)
                         video_post = VideoPost.from_shoplus(detail["data"])
                         if video_post != None:
-                            print(video_post)
-                            print()
                             crawled_count += 1
+                            logger.info("[shoplus "+ str(crawled_count) +"] "+ str(video_post))
+                            logger.info("\n")
                             selenium_crawler_config.shoplus_crawled = crawled_count
                             selenium_crawler_config.save()
                         time.sleep(1)
@@ -113,7 +114,7 @@ class ShoplusCrawler(threading.Thread):
                         #     print(post)
                 break
             except Exception:
-                traceback.print_exc()
+                logger.error(traceback.format_exc())
                 selenium_crawler_config.shoplus_running = False
                 selenium_crawler_config.save()
                 max_tries_all -= 1

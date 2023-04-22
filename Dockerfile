@@ -3,8 +3,10 @@ FROM python:3.8
 
 RUN apt update -y
 
-# RUN apt install -y libglib2.0-0=2.50.3-2 libnss3=2:3.26.2-1.1+deb9u1 libgconf-2-4=3.2.6-4+b1 libfontconfig1=2.11.0-6.7+b1
-RUN apt install chromium -y
+RUN apt install chromium cron -y
+
+ENV TZ="Asia/Ho_Chi_Minh"
+RUN date
 
 # Thêm các biến môi trường
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -25,7 +27,10 @@ COPY . .
 # migrate
 RUN python manage.py makemigrations
 RUN python manage.py makemigrations crawler
+RUN python manage.py migrate
 RUN python manage.py loaddata init_data.json --app auth.user
+
+RUN python manage.py crontab add
 
 # Thiết lập port để truy cập ứng dụng
 EXPOSE 8000

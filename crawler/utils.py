@@ -1,4 +1,6 @@
 from babel import Locale
+from import_export import resources
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 
 def to_number(num):
     number = 0
@@ -29,8 +31,14 @@ def country_to_str(item) -> str:
                 countries.append(item['countries'][i])
     return ", ".join(countries)
 
+def clean_str(v):
+    if type(v) == str:
+      v = ILLEGAL_CHARACTERS_RE.sub('', v)
+    return v
+
 if __name__ == "__main__":
-    item = {
-        "countries": ["USA", "IND"]
-    }
-    print(country_to_str(item))
+    # item = {
+    #     "countries": ["USA", "IND"]
+    # }
+    # print(country_to_str(item))
+    print(clean_str("mua TÚI CHÉO TAIJANG"))

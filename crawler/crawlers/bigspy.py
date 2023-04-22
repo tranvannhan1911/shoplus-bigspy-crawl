@@ -12,6 +12,8 @@ import json
 import crawler.api as api
 import threading
 import traceback
+import logging
+logger = logging.getLogger("django")
 
 class BigspyCrawler(threading.Thread):
     def __init__(self, thread_name, thread_ID):
@@ -31,12 +33,11 @@ class BigspyCrawler(threading.Thread):
             selenium_crawler_config.bigspy_running = True
             selenium_crawler_config.save()
             try:
-                print("Start crawl bigspy...")
+                logger.info("Start crawl bigspy...")
                 chrome_options = Options()
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
-                if selenium_crawler_config.headless:
-                    chrome_options.add_argument("--headless")
+                chrome_options.add_argument("--headless")
                 capabilities = webdriver.DesiredCapabilities.CHROME
                 capabilities["goog:loggingPrefs"] = {"performance": "ALL"}
                 driver = webdriver.Chrome(executable_path=r'./chromedriver', desired_capabilities=capabilities, options=chrome_options)
@@ -103,8 +104,8 @@ class BigspyCrawler(threading.Thread):
                         # print(event)
                         # print()
 
-                print("token: ", token)
-                print("cookie: ", cookie)
+                logger.info("token: "+ token)
+                logger.info("cookie: "+ cookie)
                 driver.quit()
                 max_page = 100
                 for page in range(1, max_page+1):
@@ -116,17 +117,17 @@ class BigspyCrawler(threading.Thread):
                             detail = api.get_bigspy_henull_ads_detail(post["ad_key"], token, cookie)
                             video_post = VideoPost.from_bigspy(detail["data"])
                             if video_post != None:
-                                print(video_post)
-                                print()
                                 crawled_count += 1
+                                logger.info("[bigspy "+ str(crawled_count) +"] "+ str(video_post))
+                                logger.info("\n")
                                 # if(crawled_count % 5 == 0):
                                 selenium_crawler_config.bigspy_crawled = crawled_count
                                 selenium_crawler_config.save()
                         except Exception:
-                            traceback.print_exc()
-                            print(post)
+                            logger.error(traceback.format_exc())
+                            logger.info(post)
             except Exception:
-                traceback.print_exc()
+                logger.error(traceback.format_exc())
                 selenium_crawler_config.bigspy_running = False
                 selenium_crawler_config.save()
                 max_tries_all -= 1
