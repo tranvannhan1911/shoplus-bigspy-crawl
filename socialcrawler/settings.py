@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'django_admin_listfilter_dropdown',
     'preferences',
+    'gsheets'
 ]
 
 MIDDLEWARE = [
@@ -83,7 +84,7 @@ WSGI_APPLICATION = 'socialcrawler.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db4.sqlite3',
     }
 }
 
@@ -184,4 +185,9 @@ LOGGING = {
             'propagate': True,
         },
     },
+}
+
+
+GSHEETS = {
+    'CLIENT_SECRETS': './google_credential.json'
 }

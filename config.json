@@ -1,0 +1,1 @@
+[{"model": "crawler.accountcrawlerconfig", "pk": 1, "fields": {"henull_username": "vitaminforsale@gmail.com", "henull_password": "qazmlp@2211", "shoplus_username": "ngtruongdrt@gmail.com", "shoplus_password": "qazmlp@2211"}}, {"model": "crawler.seleniumcrawlerconfig", "pk": 2, "fields": {"bigspy_running": true, "bigspy_crawled": 0, "shoplus_running": true, "shoplus_crawled": 0}}]

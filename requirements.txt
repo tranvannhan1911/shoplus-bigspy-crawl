@@ -12,3 +12,4 @@ requests
 babel
 django-preferences
 import_export
+django-gsheets

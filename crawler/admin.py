@@ -45,7 +45,7 @@ class VideoPostAdmin(ExportActionMixin, admin.ModelAdmin):
     list_filter =('crawler', 'platform', 
                   ('created_at', DateRangeFilterBuilder()), 
                   ('posted_at', DateRangeFilterBuilder()),
-                  ('country', MyDropdownFilter),
+                #   ('country', MyDropdownFilter),
                   ('resolution', DropdownFilter))
     list_per_page = 200
     change_list_template = "admin/videopost/change_list.html"

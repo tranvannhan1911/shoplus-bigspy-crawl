@@ -7,19 +7,25 @@ import threading
 import os
 import socialcrawler.settings as settings
 from django.http import HttpResponse
+from crawler.models import VideoPost
 
 def dashboard_view(request):
     for thread in threading.enumerate(): 
         print(thread.name)
     return "home"
 
-def bigspy_crawl_view(request):
-    crawler = BigspyCrawler("crawl bigspy", 1000)
+def bigspy_facebook_crawl_view(request):
+    crawler = BigspyCrawler("crawl bigspy facebook", 1000, VideoPost.PLATFORM_FACEBOOK)
+    crawler.start()
+    return redirect("/admin/crawler/videopost/")
+
+def bigspy_tiktok_crawl_view(request):
+    crawler = BigspyCrawler("crawl bigspy tiktok", 1001, VideoPost.PLATFORM_TIKTOK)
     crawler.start()
     return redirect("/admin/crawler/videopost/")
 
 def shoplus_crawl_view(request):
-    crawler = ShoplusCrawler("crawl shoplus", 1001)
+    crawler = ShoplusCrawler("crawl shoplus", 2000)
     crawler.start()
     return redirect("/admin/crawler/videopost/")
 

@@ -15,6 +15,7 @@ import threading
 from crawler.models import VideoPost, AccountCrawlerConfig, SeleniumCrawlerConfig
 from datetime import datetime
 import traceback
+import platform
 import logging
 logger = logging.getLogger("django")
 
@@ -46,7 +47,10 @@ class ShoplusCrawler(threading.Thread):
                 capabilities["goog:loggingPrefs"] = {"performance": "ALL"}
                 # , desired_capabilities=capabilities, options=options
                 # driver = webdriver.Chrome(executable_path=r'./chromedriver.exe')
-                driver = webdriver.Chrome(executable_path=r'./chromedriver', desired_capabilities=capabilities, options=chrome_options)
+                executable_path = r'./chromedriver'
+                if platform.system() == 'Windows':
+                    executable_path = r'./chromedriver.exe'
+                driver = webdriver.Chrome(executable_path=executable_path, desired_capabilities=capabilities, options=chrome_options)
                 driver.set_window_size(1500, 1000)
 
                 driver.get('https://www.shoplus.net/login')

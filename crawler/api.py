@@ -2,7 +2,7 @@ import requests
 import json
 
 def get_bigspy_ads_list(token, page):
-    url = "https://bigspy.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=1&category=0&os=0&ads_promote_type=0&geo=VNM&game_play=0&game_style=&type=&page="+str(page)+"&industry=3&language=&keyword=&sort_field=first_seen&region=&seen_begin=1618765200&seen_end=1681837199&original_flag=0&is_preorder=0&theme=&text_md5=&ads_size=&ads_format=&exclude_keyword=&cod_flag=0&cta_type=0&new_ads_flag=0&like_begin=1000&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=0&page_load_more=1&source_app="
+    url = "https://bigspy.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=1&category=0&os=0&ads_promote_type=0&geo=VNM&game_play=0&game_style=&type=&page="+str(page)+"&industry=3&language=&keyword=&sort_field=first_seen&region=&original_flag=0&is_preorder=0&theme=&text_md5=&ads_size=&ads_format=&exclude_keyword=&cod_flag=0&cta_type=0&new_ads_flag=0&like_begin=1000&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=0&page_load_more=1&source_app="
 
     payload={}
     headers = {
@@ -48,9 +48,32 @@ def get_bigspy_ads_detail(token, ad_key):
     response = requests.request("GET", url, headers=headers, data=payload)
     return json.loads(response.text)
 
-def get_bigspy_henull_ads_list(page, token, cookie):
-    url = "https://l9gr5r2r.realnull.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=1&category=0&os=0&ads_promote_type=0&geo=VNM&game_play=0&game_style=&type=&page="+str(page)+"&industry=3&language=&keyword=&sort_field=first_seen&region=&seen_begin=1618765200&seen_end=1681837199&original_flag=0&is_preorder=0&theme=&text_md5=&ads_size=&ads_format=&exclude_keyword=&cod_flag=0&cta_type=0&new_ads_flag=0&like_begin=1000&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=0&page_load_more=1&source_app="
+def get_bigspy_henull_facebook_ads_list(page, token, cookie):
+    url = "https://l9gr5r2r.realnull.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=1&category=&os=0&ads_promote_type=0&geo=VNM&game_play=&game_style=&type=2&page="+ str(page) +"&industry=3&language=&keyword=&sort_field=first_seen&region=&original_flag=0&is_preorder=0&theme=&text_md5=&ads_size=&ads_format=&exclude_keyword=&cod_flag=0&cta_type=&new_ads_flag=0&like_begin=1000&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=0&page_load_more=1&source_app="
 
+    payload = {}
+    headers = {
+    'authority': 'l9gr5r2r.realnull.com',
+    'accept': 'application/json, text/plain, */*',
+    'accept-language': 'en-US,en;q=0.9',
+    'authorization': token,
+    'cookie': cookie,
+    'referer': 'https://l9gr5r2r.realnull.com/iframe/adspy/facebook/?utm_home=1&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsYW4iOiJlbiIsInZlciI6ImJzIiwidGltZXN0YW1wIjoxNjgxODMyNTI3LCJleHBpcmUiOjE2ODIwOTE3MjcsInVzZXJfaWQiOiJTMVptUkZwV2F3PT0iLCJhcHBuYW1lIjoiQmlnU3B5IiwidXNlcl9uYW1lIjoiZGF0ZGUiLCJzdWJzY3JpcHRpb24iOnsiY29kZSI6ImJpZ3NweV9lbnRlcnByaXNlIiwiYWRzX3Blcm1pc3Npb24iOnsic2VhcmNoIjoxLCJleGNsdWRlX3NlYXJjaCI6MSwiZmlsdGVyIjoxLCJwYWdlX2xpbWl0IjoxMDAsInF1ZXJ5X251bSI6MzAwMCwiZG93bmxvYWRfbnVtIjoyMDAwfSwibmV0d29ya3MiOnsiZmFjZWJvb2siOjEsImluc3RhZ3JhbSI6MSwiYWRtb2IiOjEsInlvdXR1YmUiOjEsInlhaG9vIjoxLCJwaW50ZXJlc3QiOjEsInR3aXR0ZXIiOjEsInRpa3RvayI6MSwidW5pdHkiOjF9LCJ0cmFja19wZXJtaXNzaW9uIjp7ImZlYXR1cmVfYWRzIjoxLCJwZW9wbGVfYWRzIjoxLCJteV90cmFjayI6MSwidHJhY2tfbnVtIjoyMDAwLCJwYWdlX3RyYWNrX251bSI6MTAwfSwibW9kdWxlX3Blcm1pc3Npb24iOnsiYWRzcHkiOjEsImFkaWRlYSI6MSwiZmVhdHVyZV9hZHMiOjEsInRvcF9jaGFydHMiOjEsInBsYXlhYmxlIjoxLCJuZXdfdHJlbmRpbmciOjEsInBhZ2VfYW5hbHlzaXMiOjF9LCJ0ZWFtX2luZm8iOltdLCJpbmR1c3RyeV9pbmZvIjp7InRvdGFsX2luZHVzdHJ5X2NvdW50Ijo5OTk5LCJyZW1haW5faW5kdXN0cnlfY291bnQiOjk5OTksInBlcm1pc3Npb25fYXBwX3R5cGUiOlszXSwibGFzdF9hcHBfdHlwZSI6M30sInVzZXJfc3RhdHVzIjo1LCJpc19hZG1pbiI6MX0sImNvbXBhbnlfaWQiOjE2MjEzMiwiZW1haWwiOiJkYXRkZW1vMjMwMkBnbWFpbC5jb20iLCJjb21wYW55X25hbWUiOiJiaWdzcHktZW50ZXJwcmlzZSJ9.hPCpK81QqpGFtqOHqdJtMhLCeyFFWj8rp9iRrzPWJi0',
+    'sec-ch-ua': '"Chromium";v="112", "Google Chrome";v="112", "Not:A-Brand";v="99"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    return json.loads(response.text)
+
+def get_bigspy_henull_tiktok_ads_list(page, token, cookie):
+    url = "https://l9gr5r2r.realnull.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=43&category=0&os=0&ads_promote_type=0&geo=VNM&game_play=0&game_style=&type=2&page="+ str(page) +"&industry=3&language=&keyword=&sort_field=first_seen&region=&original_flag=0&is_preorder=0&theme=&text_md5=&ads_size=&ads_format=&exclude_keyword=&cod_flag=0&cta_type=0&new_ads_flag=0&like_begin=1000&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=0&page_load_more=1&source_app="
     payload = {}
     headers = {
     'authority': 'l9gr5r2r.realnull.com',

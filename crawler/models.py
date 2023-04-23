@@ -4,21 +4,31 @@ from .utils import to_number, country_to_str, clean_str
 from datetime import datetime
 import json
 from preferences.models import Preferences
+from gsheets import mixins
+from uuid import uuid4
+from django.utils import timezone
 
 # class Country(models.Model):
 #     country = CountryField()
 
-class VideoPost(models.Model):
+class VideoPost(mixins.SheetPushableMixin, models.Model):
     PLATFORM_FACEBOOK = "facebook"
     PLATFORM_TIKTOK = "tiktok"
     CRAWLER_BIGSPY = "bigspy"
     CRAWLER_SHOPLUS = "shoplus"
 
+    spreadsheet_id = '1U2wy1EpGqcwAR9HJTunk0jNLfzYm-yQY48cS8DI_wHY'
+    model_id_field = 'ads_id'
+    sheet_name = 'Sheet1'
+    sheet_id_field = 'ads_id'
+
+    guid = models.CharField(primary_key=True, max_length=255, default=uuid4)
     ads_id = models.CharField('Ads id', max_length=255)
     title = models.CharField("Tiêu đề", max_length=255, default="", blank=True)
     fanpage_name = models.CharField('Tên fanpage', max_length=255, default="", blank=True)
     fanpage_url = models.CharField('Link fanpage', max_length=255, default="", blank=True)
-    country = CountryField('Quốc gia')
+    # country = CountryField('Quốc gia')
+    country = models.CharField("Quốc gia", max_length=255, default="Việt Nam")
     content = models.TextField('Nội dung', default="", blank=True)
     thumbnail_url = models.CharField('Thumbnail', max_length=255, default="", blank=True)
     avatar = models.CharField('Avatar', max_length=255, default="", blank=True)
@@ -39,11 +49,28 @@ class VideoPost(models.Model):
         (CRAWLER_BIGSPY, CRAWLER_BIGSPY), (CRAWLER_SHOPLUS, CRAWLER_SHOPLUS)
     ))
 
+    @classmethod
+    def get_sheet_push_fields(cls):
+        lst = [f.name for f in cls._meta.fields]
+        lst.append("posted_at_time")
+        lst.append("created_at_time")
+        return lst
+
+    @property
+    def posted_at_time(self):
+        local_time = timezone.localtime(self.posted_at, timezone=timezone.get_fixed_timezone(420))
+        return local_time.strftime("%H:%M, %d/%m/%Y")
+
+    @property
+    def created_at_time(self):
+        local_time = timezone.localtime(self.created_at, timezone=timezone.get_fixed_timezone(420))
+        return local_time.strftime("%H:%M, %d/%m/%Y")
+
     def __str__(self):
         return self.title
     
     @staticmethod
-    def from_bigspy(data):
+    def from_bigspy(data, platform):
         if VideoPost.objects.filter(ads_id=data["ad_key"]).exists():
             print("ads id: " + data["ad_key"] + " đã tồn tại")
             return None
@@ -52,12 +79,12 @@ class VideoPost(models.Model):
             "ads_id": data["ad_key"],
             "title": clean_str(data["title"]),
             "fanpage_name": clean_str(data["page_name"]),
-            "country": "VN",
+            # "country": "VN",
             "thumbnail_url": data["preview_img_url"],
             "fanpage_url": data["store_url"],
             "avatar": data["logo_url"],
             "video_url": json.loads(data["cdn_url"])[0],
-            "platform": VideoPost.PLATFORM_FACEBOOK,
+            "platform": platform,
             "content": clean_str(data["message"]),
             "posted_at": datetime.fromtimestamp(data["created_at"]),
             "landing_page_url": data["store_url"],
@@ -72,6 +99,10 @@ class VideoPost(models.Model):
         video_post = VideoPost.objects.create(**save_data)
         return video_post
     
+    def save(self, *args, **kwargs):
+        super(VideoPost, self).save(*args, **kwargs)
+        self.push_to_sheet()
+    
     @staticmethod
     def from_shoplus(data):
         if VideoPost.objects.filter(ads_id=data["id"]).exists():
@@ -82,7 +113,7 @@ class VideoPost(models.Model):
             "ads_id": data["id"],
             "title": clean_str(data["desc"]),
             "fanpage_name": clean_str(data["nickname"]),
-            "country": "VN",
+            # "country": "VN",
             "thumbnail_url": "https://t-img.picturehaven.net/tikmeta/"+ data["origin_cover_privatization"] +"?imageMogr2/auto-orient/thumbnail/360x/strip/format/WEBP/quality/75!/ignore-error/1",
             "fanpage_url": "",
             "avatar": "https://t-img.picturehaven.net/tikmeta/"+data["avatar_privatization"]+"?imageMogr2/auto-orient/thumbnail/360x/strip/format/WEBP/quality/75!/ignore-error/1",
@@ -100,7 +131,9 @@ class VideoPost(models.Model):
             "crawler": VideoPost.CRAWLER_SHOPLUS
         }
         video_post = VideoPost.objects.create(**save_data)
+        video_post.push_to_sheet()
         return video_post
+
 
 class AccountCrawlerConfig(Preferences):
     henull_username = models.CharField("Tài khoản Henull", max_length=255, default="", blank=True)
