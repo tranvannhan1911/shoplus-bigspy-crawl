@@ -23319,3 +23319,7 @@ INFO 2023-04-23 23:39:52,997 gsheets skipping field guid because it has no heade
 INFO 2023-04-23 23:39:52,998 gsheets skipping field created_at because it has no header
 INFO 2023-04-23 23:39:52,998 gsheets skipping field posted_at because it has no header
 INFO 2023-04-23 23:39:53,338 gsheets FINISHED WITH TABLE UPSERT
+INFO 2023-04-23 23:51:38,660 autoreload D:\tasks\shoplus-crawl\socialcrawler\crawler\models.py changed, reloading.
+INFO 2023-04-23 23:51:39,569 autoreload Watching for file changes with StatReloader
+INFO 2023-04-23 23:52:04,856 autoreload D:\tasks\shoplus-crawl\socialcrawler\crawler\models.py changed, reloading.
+INFO 2023-04-23 23:52:05,700 autoreload Watching for file changes with StatReloader
