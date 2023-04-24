@@ -138,8 +138,10 @@ import os
 
 # , '>> ' + os.path.join(BASE_DIR,'log.log' + ' 2>&1 ')
 CRONJOBS = [
-    ('*/2 * * * *', 'crawler.crontab.cron_crawl_bigspy'),
-    ('*/2 * * * *', 'crawler.crontab.cron_crawl_shoplus')
+    # ('*/2 * * * *', 'crawler.crontab.cron_crawl_bigspy_facebook'),
+    # ('*/2 * * * *', 'crawler.crontab.cron_crawl_bigspy_tiktok'),
+    # ('*/2 * * * *', 'crawler.crontab.cron_crawl_shoplus')
+    ('*/1 * * * *', 'crawler.crontab.test')
 ]
 
 LOGGING = {

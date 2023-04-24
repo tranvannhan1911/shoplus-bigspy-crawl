@@ -7,6 +7,7 @@ from preferences.models import Preferences
 from gsheets import mixins
 from uuid import uuid4
 from django.utils import timezone
+from .storage import OverwriteStorage
 
 # class Country(models.Model):
 #     country = CountryField()
@@ -22,7 +23,6 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     sheet_name = 'Sheet1'
     sheet_id_field = 'ads_id'
 
-    guid = models.CharField(primary_key=True, max_length=255, default=uuid4)
     ads_id = models.CharField('Ads id', max_length=255)
     title = models.CharField("Tiêu đề", max_length=255, default="", blank=True)
     fanpage_name = models.CharField('Tên fanpage', max_length=255, default="", blank=True)
@@ -141,10 +141,15 @@ class AccountCrawlerConfig(Preferences):
     shoplus_username = models.CharField("Tài khoản Shoplus", max_length=255, default="", blank=True)
     shoplus_password = models.CharField("Mật khẩu Shoplus", max_length=255, default="", blank=True)
 
+def image_path(instance, filename):
+    import os
+    return os.path.join('google_credential.json')
+
 class SeleniumCrawlerConfig(Preferences):
     # headless = models.BooleanField("Chế độ cào không có giao diện", default=True)
     bigspy_running = models.BooleanField("Bigspy đang chạy", default=False)
     bigspy_crawled = models.PositiveIntegerField("Số lượng bài bigspy cào được", default=0)
     shoplus_running = models.BooleanField("Shoplus đang chạy", default=False)
     shoplus_crawled = models.PositiveIntegerField("Số lượng bài shoplus cào được", default=0)
+    google_credential = models.FileField("Google Credential", max_length=255, storage=OverwriteStorage(), upload_to=image_path)
     
