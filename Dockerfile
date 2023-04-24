@@ -35,5 +35,7 @@ RUN python manage.py crontab add
 # Thiết lập port để truy cập ứng dụng
 EXPOSE 8000
 
+RUN service cron start
+
 # Chạy ứng dụng
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
