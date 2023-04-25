@@ -18,7 +18,8 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     CRAWLER_BIGSPY = "bigspy"
     CRAWLER_SHOPLUS = "shoplus"
 
-    spreadsheet_id = '1U2wy1EpGqcwAR9HJTunk0jNLfzYm-yQY48cS8DI_wHY'
+    spreadsheet_id = '1U0y1bDol3VTR88WhCKpqLdcrkT-wL5TjHz_8k7wW7Ng'
+    # spreadsheet_id = 'xyz'
     model_id_field = 'ads_id'
     sheet_name = 'Sheet1'
     sheet_id_field = 'ads_id'
@@ -59,13 +60,22 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     @property
     def posted_at_time(self):
         local_time = timezone.localtime(self.posted_at, timezone=timezone.get_fixed_timezone(420))
-        return local_time.strftime("%H:%M, %d/%m/%Y")
+        return local_time.strftime("%H:%M:%S %d-%m-%Y")
 
     @property
     def created_at_time(self):
         local_time = timezone.localtime(self.created_at, timezone=timezone.get_fixed_timezone(420))
-        return local_time.strftime("%H:%M, %d/%m/%Y")
-
+        return local_time.strftime("%H:%M:%S %d-%m-%Y")
+    
+    def gsheet(self):
+        config = SeleniumCrawlerConfig.objects.first()
+        if self.crawler == VideoPost.CRAWLER_BIGSPY:
+            self.spreadsheet_id = config.bigspy_spreadsheet_id
+            self.sheet_name = config.bigspy_sheet_name
+        else:
+            self.spreadsheet_id = config.shoplus_spreadsheet_id
+            self.sheet_name = config.shoplus_sheet_name
+    
     def __str__(self):
         return self.title
     
@@ -101,6 +111,9 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     
     def save(self, *args, **kwargs):
         super(VideoPost, self).save(*args, **kwargs)
+        self.gsheet()
+        print(self.spreadsheet_id)
+        print(self.sheet_name)
         self.push_to_sheet()
     
     @staticmethod
@@ -131,7 +144,6 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
             "crawler": VideoPost.CRAWLER_SHOPLUS
         }
         video_post = VideoPost.objects.create(**save_data)
-        video_post.push_to_sheet()
         return video_post
 
 
@@ -152,4 +164,7 @@ class SeleniumCrawlerConfig(Preferences):
     shoplus_running = models.BooleanField("Shoplus đang chạy", default=False)
     shoplus_crawled = models.PositiveIntegerField("Số lượng bài shoplus cào được", default=0)
     google_credential = models.FileField("Google Credential", max_length=255, storage=OverwriteStorage(), upload_to=image_path)
-    
+    bigspy_spreadsheet_id = models.CharField("Bigspy spreadsheet id", max_length=255, default="", blank=True)
+    bigspy_sheet_name = models.CharField("Bigspy sheet name", max_length=255, default="", blank=True)
+    shoplus_spreadsheet_id = models.CharField("Shoplus spreadsheet id", max_length=255, default="", blank=True)
+    shoplus_sheet_name = models.CharField("Shoplus sheet name", max_length=255, default="", blank=True)

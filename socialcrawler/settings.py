@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'socialcrawler.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db4.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -138,9 +138,9 @@ import os
 
 # , '>> ' + os.path.join(BASE_DIR,'log.log' + ' 2>&1 ')
 CRONJOBS = [
-    ('*/2 * * * *', 'crawler.crontab.cron_crawl_bigspy_facebook', '>> '+os.path.join(BASE_DIR,'logs/cron_crawl_bigspy_facebook.log' + ' 2>&1 ')),
-    ('*/2 * * * *', 'crawler.crontab.cron_crawl_bigspy_tiktok', '>> '+os.path.join(BASE_DIR,'logs/cron_crawl_bigspy_tiktok.log' + ' 2>&1 ')),
-    ('*/2 * * * *', 'crawler.crontab.cron_crawl_shoplus', '>> '+os.path.join(BASE_DIR,'logs/cron_crawl_shoplus.log' + ' 2>&1 '))
+    ('0 * * * *', 'crawler.crontab.cron_crawl_bigspy_facebook', '>> '+os.path.join(BASE_DIR,'logs/cron_crawl_bigspy_facebook.log' + ' 2>&1 ')),
+    ('10 * * * *', 'crawler.crontab.cron_crawl_bigspy_tiktok', '>> '+os.path.join(BASE_DIR,'logs/cron_crawl_bigspy_tiktok.log' + ' 2>&1 ')),
+    ('20 * * * *', 'crawler.crontab.cron_crawl_shoplus', '>> '+os.path.join(BASE_DIR,'logs/cron_crawl_shoplus.log' + ' 2>&1 '))
 ]
 
 LOGGING = {

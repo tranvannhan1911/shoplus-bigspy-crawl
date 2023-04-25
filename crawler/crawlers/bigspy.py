@@ -17,11 +17,11 @@ import logging
 logger = logging.getLogger("django")
 
 class BigspyCrawler(threading.Thread):
-    def __init__(self, thread_name, thread_ID, platform):
+    def __init__(self, thread_name, thread_ID, platform_crawl):
         threading.Thread.__init__(self)
         self.thread_name = thread_name
         self.thread_ID = thread_ID
-        self.platform = platform
+        self.platform_crawl = platform_crawl
 
     def run(self):
         self.crawl()
@@ -35,11 +35,11 @@ class BigspyCrawler(threading.Thread):
             selenium_crawler_config.bigspy_running = True
             selenium_crawler_config.save()
             try:
-                logger.info("Start crawl bigspy "+str(platform)+"...")
+                logger.info("Start crawl bigspy "+str(self.platform_crawl)+"...")
                 chrome_options = Options()
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
-                # chrome_options.add_argument("--headless")
+                chrome_options.add_argument("--headless")
                 capabilities = webdriver.DesiredCapabilities.CHROME
                 capabilities["goog:loggingPrefs"] = {"performance": "ALL"}
                 executable_path = r'./chromedriver'
@@ -118,22 +118,22 @@ class BigspyCrawler(threading.Thread):
                 for page in range(1, max_page+1):
                     data = self.crawl_list(page)
                     for post in data["data"]:
-                        # try:
-                        if VideoPost.objects.filter(ads_id=post["ad_key"]).exists():
-                            continue
-                        detail = api.get_bigspy_henull_ads_detail(post["ad_key"], token, cookie)
-                        print(detail)
-                        video_post = VideoPost.from_bigspy(detail["data"], self.platform)
-                        if video_post != None:
-                            crawled_count += 1
-                            logger.info("[bigspy "+ str(platform) + ": " + str(crawled_count) +"] "+ str(video_post))
-                            logger.info("\n")
-                            # if(crawled_count % 5 == 0):
-                            selenium_crawler_config.bigspy_crawled = crawled_count
-                            selenium_crawler_config.save()
-                        # except Exception:
-                        #     logger.error(traceback.format_exc())
-                        #     logger.info(post)
+                        try:
+                            if VideoPost.objects.filter(ads_id=post["ad_key"]).exists():
+                                continue
+                            detail = api.get_bigspy_henull_ads_detail(post["ad_key"], token, cookie)
+                            # print(detail)
+                            video_post = VideoPost.from_bigspy(detail["data"], self.platform_crawl)
+                            if video_post != None:
+                                crawled_count += 1
+                                logger.info("[bigspy "+ str(self.platform_crawl) + ": " + str(crawled_count) +"] "+ str(video_post))
+                                logger.info("\n")
+                                # if(crawled_count % 5 == 0):
+                                selenium_crawler_config.bigspy_crawled = crawled_count
+                                selenium_crawler_config.save()
+                        except Exception:
+                            logger.error(traceback.format_exc())
+                            logger.info(post)
             except Exception:
                 logger.error(traceback.format_exc())
                 selenium_crawler_config.bigspy_running = False
@@ -141,10 +141,10 @@ class BigspyCrawler(threading.Thread):
                 max_tries_all -= 1
 
     def crawl_list(self, page):
-        if self.platform == VideoPost.PLATFORM_FACEBOOK:
+        if self.platform_crawl == VideoPost.PLATFORM_FACEBOOK:
             return api.get_bigspy_henull_facebook_ads_list(page, self.token, self.cookie)
         
-        if self.platform == VideoPost.PLATFORM_TIKTOK:
+        if self.platform_crawl == VideoPost.PLATFORM_TIKTOK:
             return api.get_bigspy_henull_tiktok_ads_list(page, self.token, self.cookie)
 
  
