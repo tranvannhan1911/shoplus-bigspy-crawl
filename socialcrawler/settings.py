@@ -180,7 +180,7 @@ LOGGING = {
         #     'level': 'INFO',
         #     'propagate': True,
         # },
-        '': {
+        'django': {
             'handlers': ['file', 'console', 'file_error'],
             'level': 1,
             'propagate': True,

@@ -29,7 +29,7 @@ class BigspyCrawler(threading.Thread):
     def crawl(self):
         account_crawler_config = AccountCrawlerConfig.objects.first()
         selenium_crawler_config = SeleniumCrawlerConfig.objects.first()
-        max_tries_all = 3
+        max_tries_all = 10
         crawled_count = 0
         while max_tries_all > 0:
             selenium_crawler_config.bigspy_running = True
@@ -109,6 +109,9 @@ class BigspyCrawler(threading.Thread):
                         # print(event)
                         # print()
 
+                if token == None or cookie == None:
+                    raise Exception("Token or cookie is None")
+
                 self.token = token
                 self.cookie = cookie
                 logger.info("token: "+ token)
@@ -116,24 +119,33 @@ class BigspyCrawler(threading.Thread):
                 driver.quit()
                 max_page = 100
                 for page in range(1, max_page+1):
-                    data = self.crawl_list(page)
-                    for post in data["data"]:
+                    tries_list = 2
+                    data = None
+                    while(tries_list > 0):
                         try:
-                            if VideoPost.objects.filter(ads_id=post["ad_key"]).exists():
-                                continue
-                            detail = api.get_bigspy_henull_ads_detail(post["ad_key"], token, cookie)
-                            # print(detail)
-                            video_post = VideoPost.from_bigspy(detail["data"], self.platform_crawl)
-                            if video_post != None:
-                                crawled_count += 1
-                                logger.info("[bigspy "+ str(self.platform_crawl) + ": " + str(crawled_count) +"] "+ str(video_post))
-                                logger.info("\n")
-                                # if(crawled_count % 5 == 0):
-                                selenium_crawler_config.bigspy_crawled = crawled_count
-                                selenium_crawler_config.save()
-                        except Exception:
-                            logger.error(traceback.format_exc())
-                            logger.info(post)
+                            data = self.crawl_list(page)
+                            break
+                        except:
+                            tries_list -= 1
+                            time.sleep(1)
+                    if data != None:
+                        for post in data["data"]:
+                            try:
+                                if VideoPost.objects.filter(ads_id=post["ad_key"]).exists():
+                                    continue
+                                detail = api.get_bigspy_henull_ads_detail(post["ad_key"], token, cookie)
+                                # print(detail)
+                                video_post = VideoPost.from_bigspy(detail["data"], self.platform_crawl)
+                                if video_post != None:
+                                    crawled_count += 1
+                                    logger.info("[bigspy "+ str(self.platform_crawl) + ": " + str(crawled_count) +"] "+ str(video_post))
+                                    logger.info("\n")
+                                    # if(crawled_count % 5 == 0):
+                                    selenium_crawler_config.bigspy_crawled = crawled_count
+                                    selenium_crawler_config.save()
+                            except Exception:
+                                logger.error(traceback.format_exc())
+                                # logger.info(post)
             except Exception:
                 logger.error(traceback.format_exc())
                 selenium_crawler_config.bigspy_running = False
