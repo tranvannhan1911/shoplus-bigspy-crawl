@@ -60,7 +60,8 @@ class BigspyCrawler(threading.Thread):
                 WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/tools']")))
                 driver.get('https://www.henull.com/tools')
 
-                bigspy_text = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'BigSpy VIP Enterprise')]")))
+                # bigspy_text = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'BigSpy VIP Enterprise')]")))
+                bigspy_text = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'BigSpy')]")))
                 # bigspy_text = driver.find_element_by_xpath("//span[contains(text(), 'BigSpy VIP Enterprise')]")
                 bigspy_card = bigspy_text.find_element(By.XPATH, "../..")
                 bigspy_btn = bigspy_card.find_element(By.CSS_SELECTOR, "button[type=button]")
@@ -110,6 +111,7 @@ class BigspyCrawler(threading.Thread):
                         # print()
 
                 if token == None or cookie == None:
+                    driver.quit()
                     raise Exception("Token or cookie is None")
 
                 self.token = token
