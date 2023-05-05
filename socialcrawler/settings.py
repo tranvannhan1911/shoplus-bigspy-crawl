@@ -192,3 +192,5 @@ LOGGING = {
 GSHEETS = {
     'CLIENT_SECRETS': './google_credential.json'
 }
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240 

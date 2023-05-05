@@ -22,6 +22,8 @@ class BigspyCrawler(threading.Thread):
         self.thread_name = thread_name
         self.thread_ID = thread_ID
         self.platform_crawl = platform_crawl
+        self.base_domain = "krd4dp2b.realnull.com"
+        self.base_url = "https://"+self.base_domain
 
     def run(self):
         self.crawl()
@@ -39,12 +41,13 @@ class BigspyCrawler(threading.Thread):
                 chrome_options = Options()
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
-                chrome_options.add_argument("--headless")
                 capabilities = webdriver.DesiredCapabilities.CHROME
                 capabilities["goog:loggingPrefs"] = {"performance": "ALL"}
                 executable_path = r'./chromedriver'
                 if platform.system() == 'Windows':
                     executable_path = r'./chromedriver.exe'
+                else:
+                    chrome_options.add_argument("--headless")
                 driver = webdriver.Chrome(executable_path=executable_path, desired_capabilities=capabilities, options=chrome_options)
                 driver.set_window_size(1500, 1000)
 
@@ -57,20 +60,21 @@ class BigspyCrawler(threading.Thread):
                 input_password.send_keys(account_crawler_config.henull_password)
                 btn_login.click()
 
+                time.sleep(5)
                 WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/tools']")))
                 driver.get('https://www.henull.com/tools')
 
-                bigspy_text = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'BigSpy VIP Enterprise')]")))
+                bigspy_text = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'BigSpy')]")))
                 # bigspy_text = driver.find_element_by_xpath("//span[contains(text(), 'BigSpy VIP Enterprise')]")
                 bigspy_card = bigspy_text.find_element(By.XPATH, "../..")
                 bigspy_btn = bigspy_card.find_element(By.CSS_SELECTOR, "button[type=button]")
                 bigspy_btn.click()
-                time.sleep(10)
+                time.sleep(15)
                 driver.switch_to.window(driver.window_handles[0])
                 max_tries = 1
                 while(max_tries > 0):
                     try:
-                        driver.get('https://l9gr5r2r.realnull.com/adspy/facebook/?utm_home=1')
+                        driver.get(self.base_url+'/adspy/facebook/?utm_home=1')
                         # try:
                         #     btn_close_ads = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "#popup-content > div.close-button")))
                         #     btn_close_ads.click()
@@ -82,7 +86,7 @@ class BigspyCrawler(threading.Thread):
                         max_tries -= 1
                         pass
                 
-                time.sleep(10)
+                time.sleep(15)
 
                 def process_browser_logs_for_network_events(logs):
                     """
@@ -110,6 +114,7 @@ class BigspyCrawler(threading.Thread):
                         # print()
 
                 if token == None or cookie == None:
+                    driver.quit()
                     raise Exception("Token or cookie is None")
 
                 self.token = token
@@ -127,13 +132,19 @@ class BigspyCrawler(threading.Thread):
                             break
                         except:
                             tries_list -= 1
+                            logger.info("[bigspy "+ str(self.platform_crawl) + " ] retrying call api crawl list...")
                             time.sleep(1)
+                    if data != None and "message" in data.keys() and data["message"] == "Limit 100/100 search for last 24 hours.":
+                        max_tries_all = 0
+                        logger.info("[bigspy "+ str(self.platform_crawl) + " ] " + data["message"])
+                        logger.info("[bigspy "+ str(self.platform_crawl) + " ] stop crawl!!!")
+                        break
                     if data != None:
                         for post in data["data"]:
                             try:
                                 if VideoPost.objects.filter(ads_id=post["ad_key"]).exists():
                                     continue
-                                detail = api.get_bigspy_henull_ads_detail(post["ad_key"], token, cookie)
+                                detail = api.get_bigspy_henull_ads_detail(self.base_domain, post["ad_key"], token, cookie)
                                 # print(detail)
                                 video_post = VideoPost.from_bigspy(detail["data"], self.platform_crawl)
                                 if video_post != None:
@@ -154,9 +165,9 @@ class BigspyCrawler(threading.Thread):
 
     def crawl_list(self, page):
         if self.platform_crawl == VideoPost.PLATFORM_FACEBOOK:
-            return api.get_bigspy_henull_facebook_ads_list(page, self.token, self.cookie)
+            return api.get_bigspy_henull_facebook_ads_list(self.base_domain, page, self.token, self.cookie)
         
         if self.platform_crawl == VideoPost.PLATFORM_TIKTOK:
-            return api.get_bigspy_henull_tiktok_ads_list(page, self.token, self.cookie)
+            return api.get_bigspy_henull_tiktok_ads_list(self.base_domain, page, self.token, self.cookie)
 
  
