@@ -70,7 +70,7 @@ def get_bigspy_henull_facebook_ads_list(base_domain, page, token, cookie):
     }
 
     response = requests.request("GET", url, headers=headers, data=payload)
-    return json.loads(response.text)
+    return response
 
 def get_bigspy_henull_tiktok_ads_list(base_domain, page, token, cookie):
     base_url = "https://"+base_domain
@@ -94,7 +94,7 @@ def get_bigspy_henull_tiktok_ads_list(base_domain, page, token, cookie):
 
     response = requests.request("GET", url, headers=headers, data=payload)
 
-    return json.loads(response.text)
+    return response
 
 
 def get_bigspy_henull_ads_detail(base_domain, ad_key, token, cookie):
@@ -119,7 +119,7 @@ def get_bigspy_henull_ads_detail(base_domain, ad_key, token, cookie):
     }
 
     response = requests.request("GET", url, headers=headers, data=payload)
-    return json.loads(response.text)
+    return response
 
 def get_shoplus_ads_list(page, token, cookie):
     url = "https://www.shoplus.net/api/v1/tikmeta/portal/ads/search?cursor="+ str(page) +"&region=VN&keyword_type=ALL&sort=1&play_count_start=100000"

@@ -128,12 +128,16 @@ class BigspyCrawler(threading.Thread):
                     data = None
                     while(tries_list > 0):
                         try:
-                            data = self.crawl_list(page)
+                            response = self.crawl_list(page)
+                            data = json.loads(response.text)
                             break
                         except:
                             tries_list -= 1
+                            print(response)
                             logger.info("[bigspy "+ str(self.platform_crawl) + " ] retrying call api crawl list...")
                             time.sleep(1)
+                    if data == None:
+                        break
                     if data != None and "message" in data.keys() and data["message"] == "Limit 100/100 search for last 24 hours.":
                         max_tries_all = 0
                         logger.info("[bigspy "+ str(self.platform_crawl) + " ] " + data["message"])
@@ -144,7 +148,8 @@ class BigspyCrawler(threading.Thread):
                             try:
                                 if VideoPost.objects.filter(ads_id=post["ad_key"]).exists():
                                     continue
-                                detail = api.get_bigspy_henull_ads_detail(self.base_domain, post["ad_key"], token, cookie)
+                                response = api.get_bigspy_henull_ads_detail(self.base_domain, post["ad_key"], token, cookie)
+                                detail = json.loads(response.text)
                                 # print(detail)
                                 video_post = VideoPost.from_bigspy(detail["data"], self.platform_crawl)
                                 if video_post != None:
