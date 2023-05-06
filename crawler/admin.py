@@ -42,7 +42,7 @@ class VideoPostAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = [field.name for field in VideoPost._meta.get_fields()]
     ordering = ["-created_at"]
     search_fields = ('ads_id', 'title', 'fanpage_name', 'country', 'platform', 'content')
-    list_filter =('crawler', 'platform', 
+    list_filter =('crawler', 'platform', 'browser',
                   ('created_at', DateRangeFilterBuilder()), 
                   ('posted_at', DateRangeFilterBuilder()),
                 #   ('country', MyDropdownFilter),

@@ -7,7 +7,7 @@ import threading
 import os
 import socialcrawler.settings as settings
 from django.http import HttpResponse
-from crawler.models import VideoPost
+from crawler.models import VideoPost, AccountCrawlerConfig
 import json
 from django.http import JsonResponse
 
@@ -23,6 +23,18 @@ def bigspy_facebook_crawl_view(request):
 
 def bigspy_tiktok_crawl_view(request):
     crawler = BigspyCrawler("crawl bigspy tiktok", 1001, VideoPost.PLATFORM_TIKTOK)
+    crawler.start()
+    return redirect("/admin/crawler/videopost/")
+
+def bigspy_facebook_token_1_crawl_view(request):
+    config = AccountCrawlerConfig.objects.first()
+    crawler = BigspyCrawler("crawl bigspy facebook", 1002, VideoPost.PLATFORM_FACEBOOK, config.bigspy_token_1, config.bigspy_cookie_1, True, "bigspy.com")
+    crawler.start()
+    return redirect("/admin/crawler/videopost/")
+
+def bigspy_tiktok_token_1_crawl_view(request):
+    config = AccountCrawlerConfig.objects.first()
+    crawler = BigspyCrawler("crawl bigspy tiktok", 1003, VideoPost.PLATFORM_TIKTOK, config.bigspy_token_1, config.bigspy_cookie_1, True, "bigspy.com")
     crawler.start()
     return redirect("/admin/crawler/videopost/")
 
@@ -53,3 +65,5 @@ def api_get_ads_id(request):
         data.append(i["ads_id"])
     print(data)
     return JsonResponse({"data": data})
+
+

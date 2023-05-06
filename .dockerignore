@@ -1,3 +1,4 @@
 migrations/
 *.log
 *.sqlite3
+venv/

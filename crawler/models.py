@@ -118,6 +118,7 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     def save(self, *args, **kwargs):
         super(VideoPost, self).save(*args, **kwargs)
         self.gsheet()
+        # self.ads_id = "'"+self.ads_id
         self.push_to_sheet()
     
     @staticmethod
@@ -157,6 +158,8 @@ class AccountCrawlerConfig(Preferences):
     henull_password = models.CharField("Mật khẩu Henull", max_length=255, default="", blank=True)
     shoplus_username = models.CharField("Tài khoản Shoplus", max_length=255, default="", blank=True)
     shoplus_password = models.CharField("Mật khẩu Shoplus", max_length=255, default="", blank=True)
+    bigspy_token_1 = models.TextField("Bigspy Access token 1", default="", blank=True)
+    bigspy_cookie_1 = models.TextField("Bigspy Cookie 2", default="", blank=True)
 
 def image_path(instance, filename):
     import os
