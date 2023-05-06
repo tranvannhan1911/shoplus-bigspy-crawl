@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from crawler.views import bigspy_facebook_crawl_view, bigspy_tiktok_crawl_view, log_view, shoplus_crawl_view
+from crawler.views import bigspy_facebook_crawl_view, bigspy_tiktok_crawl_view, log_view, shoplus_crawl_view, api_opera_shoplus_tiktok, api_get_ads_id
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('log', log_view),
@@ -23,4 +23,6 @@ urlpatterns = [
     path('crawler/bigspy-tiktok', bigspy_tiktok_crawl_view),
     path('crawler/shoplus', shoplus_crawl_view),
     path('', include('gsheets.urls')),
+    path('api/opera-shoplus-tiktok/', api_opera_shoplus_tiktok),
+    path('api/ads_id/', api_get_ads_id),
 ]

@@ -8,6 +8,8 @@ import os
 import socialcrawler.settings as settings
 from django.http import HttpResponse
 from crawler.models import VideoPost
+import json
+from django.http import JsonResponse
 
 def dashboard_view(request):
     for thread in threading.enumerate(): 
@@ -34,3 +36,20 @@ def log_view(request):
     with open(log_file_path, 'r', encoding='utf-8') as log_file:
         log_content = log_file.read()
     return HttpResponse(log_content, content_type='text/plain')
+
+def api_opera_shoplus_tiktok(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    video_post = VideoPost.from_shoplus(body["data"], VideoPost.BROWSER_OPERA)
+    if video_post != None:
+        print("[shoplus from opera] "+ str(video_post))
+        print()
+    return HttpResponse('{"message": "ok"}', content_type='text/plain')
+
+def api_get_ads_id(request):
+    ads_id = VideoPost.objects.all().values("ads_id")
+    data = []
+    for i in ads_id:
+        data.append(i["ads_id"])
+    print(data)
+    return JsonResponse({"data": data})

@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django_crontab',
     'django_admin_listfilter_dropdown',
     'preferences',
-    'gsheets'
+    'gsheets',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

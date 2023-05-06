@@ -17,6 +17,8 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     PLATFORM_TIKTOK = "tiktok"
     CRAWLER_BIGSPY = "bigspy"
     CRAWLER_SHOPLUS = "shoplus"
+    BROWSER_CHROME = "chrome"
+    BROWSER_OPERA = "opera"
 
     spreadsheet_id = '1U0y1bDol3VTR88WhCKpqLdcrkT-wL5TjHz_8k7wW7Ng'
     # spreadsheet_id = 'xyz'
@@ -49,6 +51,9 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     crawler = models.CharField("Nền tảng cào", max_length=255, choices=(
         (CRAWLER_BIGSPY, CRAWLER_BIGSPY), (CRAWLER_SHOPLUS, CRAWLER_SHOPLUS)
     ))
+    browser = models.CharField("Trình duyệt cào", max_length=255, default=BROWSER_CHROME, choices=(
+        (BROWSER_CHROME, BROWSER_CHROME), (BROWSER_OPERA, BROWSER_OPERA)
+    ))
 
     @classmethod
     def get_sheet_push_fields(cls):
@@ -80,7 +85,7 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
         return self.title
     
     @staticmethod
-    def from_bigspy(data, platform):
+    def from_bigspy(data, platform, browser=BROWSER_CHROME):
         if VideoPost.objects.filter(ads_id=data["ad_key"]).exists():
             print("ads id: " + data["ad_key"] + " đã tồn tại")
             return None
@@ -104,7 +109,8 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
             "like_count": to_number(data["like_count"]),
             "comment_count": to_number(data["comment_count"]),
             "share_count": to_number(data["share_count"]),
-            "crawler": VideoPost.CRAWLER_BIGSPY
+            "crawler": VideoPost.CRAWLER_BIGSPY,
+            "browser": browser
         }
         video_post = VideoPost.objects.create(**save_data)
         return video_post
@@ -112,12 +118,10 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     def save(self, *args, **kwargs):
         super(VideoPost, self).save(*args, **kwargs)
         self.gsheet()
-        print(self.spreadsheet_id)
-        print(self.sheet_name)
         self.push_to_sheet()
     
     @staticmethod
-    def from_shoplus(data):
+    def from_shoplus(data, browser=BROWSER_CHROME):
         if VideoPost.objects.filter(ads_id=data["id"]).exists():
             print("ads id: " + str(data["id"]) + " đã tồn tại")
             return None
@@ -141,7 +145,8 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
             "like_count": data["interaction"],
             "comment_count": data["comment_count"],
             "share_count": data["share_count"],
-            "crawler": VideoPost.CRAWLER_SHOPLUS
+            "crawler": VideoPost.CRAWLER_SHOPLUS,
+            "browser": browser
         }
         video_post = VideoPost.objects.create(**save_data)
         return video_post
