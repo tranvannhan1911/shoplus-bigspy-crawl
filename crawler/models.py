@@ -9,10 +9,22 @@ from uuid import uuid4
 from django.utils import timezone
 from .storage import OverwriteStorage
 
+from gsheets.gsheets import SheetPushInterface
+
 # class Country(models.Model):
 #     country = CountryField()
 
-class VideoPost(mixins.SheetPushableMixin, models.Model):
+class CustomSheetPushableMixin(mixins.SheetPushableMixin):
+    def push_to_sheet(self):
+        queryset = VideoPost.objects.filter(ads_id=self.ads_id)
+        interface = SheetPushInterface(self, self.spreadsheet_id, sheet_name=self.sheet_name, data_range=self.data_range,
+                                       model_id_field=self.model_id_field, sheet_id_field=self.sheet_id_field,
+                                       batch_size=self.batch_size, max_rows=self.max_rows, max_col=self.max_col,
+                                       push_fields=self.get_sheet_push_fields(), queryset=queryset)
+        return interface.upsert_table()
+
+
+class VideoPost(CustomSheetPushableMixin, models.Model):
     PLATFORM_FACEBOOK = "facebook"
     PLATFORM_TIKTOK = "tiktok"
     CRAWLER_BIGSPY = "bigspy"
@@ -118,8 +130,13 @@ class VideoPost(mixins.SheetPushableMixin, models.Model):
     def save(self, *args, **kwargs):
         super(VideoPost, self).save(*args, **kwargs)
         self.gsheet()
+        # print(self.spreadsheet_id)
+        # print(self.sheet_name)
         # self.ads_id = "'"+self.ads_id
         self.push_to_sheet()
+    
+    def push_missing_to_sheet(self):
+        pass
     
     @staticmethod
     def from_shoplus(data, browser=BROWSER_CHROME):

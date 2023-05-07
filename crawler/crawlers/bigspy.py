@@ -38,6 +38,7 @@ class BigspyCrawler(threading.Thread):
         selenium_crawler_config = SeleniumCrawlerConfig.objects.first()
         max_tries_all = 10
         crawled_count = 0
+        current_page = 0
         while max_tries_all > 0:
             selenium_crawler_config.bigspy_running = True
             selenium_crawler_config.save()
@@ -66,7 +67,7 @@ class BigspyCrawler(threading.Thread):
                     input_password.send_keys(account_crawler_config.henull_password)
                     btn_login.click()
 
-                    time.sleep(5)
+                    time.sleep(15)
                     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/tools']")))
                     driver.get('https://www.henull.com/tools')
 
@@ -92,7 +93,7 @@ class BigspyCrawler(threading.Thread):
                             max_tries -= 1
                             pass
                     
-                    time.sleep(15)
+                    time.sleep(20)
 
                     def process_browser_logs_for_network_events(logs):
                         """
@@ -105,18 +106,23 @@ class BigspyCrawler(threading.Thread):
                                     "Network.response" in log["method"]
                                     or "Network.request" in log["method"]
                                     or "Network.webSocket" in log["method"]
+                                    or "Network.requestWillBeSent" in log["method"]
                             ):
                                 yield log
                     logs = driver.get_log("performance")
-
+                    # f = open("performance.txt", "a")
+                    # f.write(str(logs))
+                    # f.close()
                     events = process_browser_logs_for_network_events(logs)
                     token = None
                     cookie = None
                     for event in events:
-                        if "headers" in event["params"].keys() and "authorization" in event["params"]["headers"].keys() and event["params"]["headers"]["authorization"].startswith("ey"):
-                            token = event["params"]["headers"]["authorization"]
-                            cookie = event["params"]["headers"]["cookie"]
-                            # print(event)
+                        # print(event)
+                        # print()
+                        if "headers" in event["params"].keys() and "Authorization" in event["params"]["headers"].keys() and event["params"]["headers"]["Authorization"].startswith("ey"):
+                            token = event["params"]["headers"]["Authorization"]
+                            cookie = event["params"]["headers"]["Cookie"]
+                            # print("found", event)
                             # print()
 
                     if token == None or cookie == None:
@@ -125,16 +131,17 @@ class BigspyCrawler(threading.Thread):
 
                     self.token = token
                     self.cookie = cookie
+                    self.from_token = True
                     driver.quit()
                 logger.info("token: "+ self.token)
                 logger.info("cookie: "+ self.cookie)
                 max_page = 100
-                for page in range(1, max_page+1):
+                while current_page <= max_page:
                     tries_list = 2
                     data = None
                     while(tries_list > 0):
                         try:
-                            response = self.crawl_list(page)
+                            response = self.crawl_list(current_page)
                             data = json.loads(response.text)
                             break
                         except:
@@ -146,6 +153,7 @@ class BigspyCrawler(threading.Thread):
                         break
                     if data != None and "message" in data.keys() and data["message"] == "Limit 100/100 search for last 24 hours.":
                         max_tries_all = 0
+                        self.from_token = False
                         logger.info("[bigspy "+ str(self.platform_crawl) + " ] " + data["message"])
                         logger.info("[bigspy "+ str(self.platform_crawl) + " ] stop crawl!!!")
                         break
@@ -168,6 +176,7 @@ class BigspyCrawler(threading.Thread):
                             except Exception:
                                 logger.error(traceback.format_exc())
                                 # logger.info(post)
+                    current_page += 1
             except Exception:
                 logger.error(traceback.format_exc())
                 selenium_crawler_config.bigspy_running = False
